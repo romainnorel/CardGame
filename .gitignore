@@ -1,0 +1,25 @@
+# Symfony folders
+/var/
+/vendor/
+/node_modules/
+
+# Symfony environment files
+.env
+.env.dev
+.env.local
+.env.*.local
+
+# PHPStorm / VSCode / IDE
+.idea/
+.vscode/
+
+# Logs and cache
+*.log
+.cache/
+
+# Others
+.DS_Store
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="activeGame.css">
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <title>Game</title>
+</head>
+
+<body>
+    <div id="gameBoard">
+        <div class="board-container" id="player1Board"></div>
+        <div class="board-container" id="player2Board"></div>
+    </div>
+
+    <div id="action-summary" class="action-summary"></div>
+
+    <div id="spells-container">
+        <div id="spell-buttons-container">
+            <button id="spell-button-validate" class="spell-button" type="button">Valider</button>
+            <button id="spell-button-cancel" class="spell-button" type="button">Annuler</button>
+        </div>
+    </div>
+
+    <script type="module" src="activeGame.js"></script>
+</body>
+
+</html>
