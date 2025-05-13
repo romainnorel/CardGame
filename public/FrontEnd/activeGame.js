@@ -44,13 +44,24 @@ function addActiveCardWithHP(activeCard, container, isUserCard) {
   img.src = activeCard.card.link;
   img.classList.add("image");
 
-  const heartContainer = document.createElement("div");
-  heartContainer.classList.add("heart-container");
-  heartContainer.innerHTML = `
-        <svg class="heart-svg" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="red"/>
-            <text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" class="heart-text">${activeCard.currentHp}</text>
-        </svg>
+  const cardHeader = document.createElement("div");
+  cardHeader.classList.add("card-header");
+  cardHeader.innerHTML = `
+    <div class="card-icon speed">
+      <svg class="icon-svg" viewBox="0 0 24 24">
+        <path d="M7 2v11h3v9l7-12h-4l4-8z" fill="yellow"/>
+        <text x="42%" y="38%" text-anchor="middle" dominant-baseline="middle" class="svg-text">${activeCard.currentSpeed}</text>
+      </svg>
+    </div>
+
+    <div class="card-name">${activeCard.card.name.replace(/\.[^/.]+$/, '')}</div>
+
+    <div class="card-icon heart">
+      <svg class="icon-svg" viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="red"/>
+        <text x="50%" y="45%" text-anchor="middle" dominant-baseline="middle" class="svg-text">${activeCard.currentHp} / ${activeCard.card.hp}</text>
+      </svg>
+    </div>
     `;
 
   imageWrapper.addEventListener("click", function () {
@@ -76,8 +87,8 @@ function addActiveCardWithHP(activeCard, container, isUserCard) {
     }
   });
 
+  imageWrapper.appendChild(cardHeader);
   imageWrapper.appendChild(img);
-  imageWrapper.appendChild(heartContainer);
   container.appendChild(imageWrapper);
 
 }
@@ -143,6 +154,13 @@ function updateActionSummary() {
   const summaryContainer = document.getElementById("action-summary");
   summaryContainer.innerHTML = "";
 
+  selectedActions.sort((a, b) => {
+      if (b.selectedCard.card.speed !== a.selectedCard.card.speed) {
+        return b.selectedCard.card.speed - a.selectedCard.card.speed;
+      }
+      return a.selectedCard.currentHp - b.selectedCard.currentHp;
+    });
+
   selectedActions.forEach((action) => {
     const entry = document.createElement("div");
     entry.classList.add("action-entry");
@@ -189,14 +207,6 @@ function showConfirmTurnButton() {
   buttonContainer.appendChild(confirmTurnButton);
 
   confirmTurnButton.onclick = async () => {
-
-    selectedActions.sort((a, b) => {
-      if (b.selectedCard.card.speed !== a.selectedCard.card.speed) {
-        return b.selectedCard.card.speed - a.selectedCard.card.speed;
-      }
-      return a.selectedCard.currentHp - b.selectedCard.currentHp;
-    });
-
     try {
       for (const action of selectedActions) {
         await useSpell(action.selectedSpell.id, action.selectedTargetCard.position);

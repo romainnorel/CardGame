@@ -31,6 +31,10 @@ class ActiveCards
     #[Groups(["active_game:read"])]
     private ?int $currentHp = null;
 
+    #[ORM\Column]
+    #[Groups(["active_game:read"])]
+    private ?int $currentSpeed = null;
+
     /**
      * @var Collection<int, Spells>
      */
@@ -90,6 +94,19 @@ class ActiveCards
     public function setCurrentHp(int $currentHp): static
     {
         $this->currentHp = $currentHp;
+
+        return $this;
+    }
+
+    
+    public function getCurrentSpeed(): ?int
+    {
+        return $this->currentSpeed;
+    }
+
+    public function setCurrentSpeed(int $currentSpeed): static
+    {
+        $this->currentSpeed = $currentSpeed;
 
         return $this;
     }
