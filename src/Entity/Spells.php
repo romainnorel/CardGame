@@ -40,9 +40,19 @@ class Spells
     #[Groups(["active_game:read"])]
     private Collection $spellEffects;
 
+    #[ORM\Column]
+    private ?int $cooldown = null;
+
+    /**
+     * @var Collection<int, ActiveSpell>
+     */
+    #[ORM\OneToMany(targetEntity: ActiveSpell::class, mappedBy: 'spell')]
+    private Collection $activeSpells;
+
     public function __construct()
     {
         $this->spellEffects = new ArrayCollection();
+        $this->activeSpells = new ArrayCollection();
     }
 
 
@@ -123,6 +133,48 @@ class Spells
             // set the owning side to null (unless already changed)
             if ($spellEffect->getSpell() === $this) {
                 $spellEffect->setSpell(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCooldown(): ?int
+    {
+        return $this->cooldown;
+    }
+
+    public function setCooldown(int $cooldown): static
+    {
+        $this->cooldown = $cooldown;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ActiveSpell>
+     */
+    public function getActiveSpells(): Collection
+    {
+        return $this->activeSpells;
+    }
+
+    public function addActiveSpell(ActiveSpell $activeSpell): static
+    {
+        if (!$this->activeSpells->contains($activeSpell)) {
+            $this->activeSpells->add($activeSpell);
+            $activeSpell->setSpell($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActiveSpell(ActiveSpell $activeSpell): static
+    {
+        if ($this->activeSpells->removeElement($activeSpell)) {
+            // set the owning side to null (unless already changed)
+            if ($activeSpell->getSpell() === $this) {
+                $activeSpell->setSpell(null);
             }
         }
 

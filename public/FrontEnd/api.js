@@ -19,13 +19,24 @@ export async function fetchActiveGame() {
   return response.json();
 }
 
-export async function useSpell(spellId, targetCardPos) {
+export async function useSpell(activeSpellId, targetCardPos) {
   const response = await fetch(`${API_BASE_URL}/use-spell`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ spellId, targetCardPos })
+    body: JSON.stringify({ activeSpellId, targetCardPos })
   });
   if (!response.ok) {
     throw new Error('Erreur lors de l’utilisation du sort');
   }
+}
+
+export async function endTurn() {
+  const response = await fetch(`${API_BASE_URL}/activeGame/end-turn`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Erreur lors de la fin du tour');
+  }
+  return response.json();
 }

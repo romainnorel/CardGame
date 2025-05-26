@@ -3,10 +3,10 @@
 namespace App\Service;
 
 use App\Entity\ActiveCards;
+use App\Entity\ActiveSpell;
 use App\Entity\SpellEffect;
-use App\Entity\Spells;
+use App\Entity\ActiveGames;
 use Doctrine\ORM\EntityManagerInterface;
-use Proxies\__CG__\App\Entity\ActiveGames;
 
 class SpellEffectService
 {
@@ -32,11 +32,12 @@ class SpellEffectService
     }
 
     public function resolveSpellEffect(ActiveGames $activeGame, $parameters): void {
-        $spell = $this->em->getRepository(className: Spells::class)->findOneBy( ["id" => $parameters["spellId"]]);
+        $activeSpell = $this->em->getRepository(className: ActiveSpell::class)->findOneBy( ["id" => $parameters["activeSpellId"]]);
         $targetActiveCard = $this->em->getRepository(className: ActiveCards::class)->findTargetedCard($activeGame->getId(), $parameters["targetCardPos"]);
 
-        foreach($spell->getSpellEffects() as $spellEffect) {
+        foreach($activeSpell->getSpell()->getSpellEffects() as $spellEffect) {
             $this->handleSpellEffect($spellEffect, $targetActiveCard);
+            $activeSpell->setCurrentCooldown($activeSpell->getSpell()->getCooldown());
         }
 
         $this->em->persist($targetActiveCard);

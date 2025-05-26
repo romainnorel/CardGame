@@ -1,5 +1,5 @@
 import { checkAuth } from './auth.js';
-import { fetchActiveGame, useSpell } from './api.js';
+import { fetchActiveGame, useSpell, endTurn } from './api.js';
 
 checkAuth();
 
@@ -66,7 +66,7 @@ function addActiveCardWithHP(activeCard, container, isUserCard) {
 
   imageWrapper.addEventListener("click", function () {
     if (selectedSpell) {
-      const targetType = selectedSpell.spellEffects[0]?.target;
+      const targetType = selectedSpell.spell.spellEffects[0]?.target;
 
       const isTargetAlly = targetType === "ally";
       const isTargetEnemy = targetType === "ennemy";
@@ -97,15 +97,15 @@ function showSpellsForCard(activeSpells) {
   spellContainer.innerHTML = "";
   selectedSpell = null;
 
-  activeSpells.forEach(spell => {
+  activeSpells.forEach(activeSpell => {
     const spellImg = document.createElement("img");
-    spellImg.src = spell.link;
+    spellImg.src = activeSpell.spell.link;
     spellImg.classList.add("spell-image");
-    spellImg.dataset.spellId = spell.id;
+    spellImg.dataset.spellId = activeSpell.id;
 
     spellImg.addEventListener("click", () => {
       clearCardSelection();
-      selectedSpell = spell;
+      selectedSpell = activeSpell;
       spellImg.classList.add("selected");
       showValidateButton();
     });
@@ -170,7 +170,7 @@ function updateActionSummary() {
     entry.appendChild(casterImg);
 
     const spellImg = document.createElement("img");
-    spellImg.src = action.selectedSpell.link;
+    spellImg.src = action.selectedSpell.spell.link;
     entry.appendChild(spellImg);
 
     const targetImg = document.createElement("img");
@@ -215,6 +215,12 @@ function showConfirmTurnButton() {
       console.error(error);
     }
 
+    try {
+      const endTurnData = await endTurn();
+      console.log(endTurnData);
+    } catch (error) {
+      console.error(error);
+    }
 
     selectedActions = [];
     confirmTurnButton.remove();

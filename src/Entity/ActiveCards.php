@@ -6,7 +6,6 @@ use App\Repository\ActiveCardsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ActiveCardsRepository::class)]
@@ -35,16 +34,8 @@ class ActiveCards
     #[Groups(["active_game:read"])]
     private ?int $currentSpeed = null;
 
-    /**
-     * @var Collection<int, Spells>
-     */
-    #[ORM\ManyToMany(targetEntity: Spells::class)]
-    #[JoinTable(name: 'active_cards_spells')]
-    #[Groups(["active_game:read"])]
-    private Collection $activeSpells;
-
     #[ORM\Column]
-    #[Groups(["active_game:read"])]
+    #[Groups(groups: ["active_game:read"])]
     private ?int $position = null;
 
     #[ORM\ManyToOne(inversedBy: 'activeCards')]
@@ -52,9 +43,16 @@ class ActiveCards
     #[Groups(["active_game:read"])]
     private ?User $user = null;
 
+    /**
+     * @var Collection<int, ActiveSpell>
+     */
+    #[ORM\OneToMany(targetEntity: ActiveSpell::class, mappedBy: 'activeCard')]
+    #[Groups(groups: ["active_game:read"])]
+    private Collection $activeSpells;
+
     public function __construct()
     {
-        $this->activeSpells = new ArrayCollection();
+        $this->activeCard = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -111,37 +109,6 @@ class ActiveCards
         return $this;
     }
 
-    /**
-     * @return Collection<int, Spells>
-     */
-    public function getActiveSpells(): Collection
-    {
-        return $this->activeSpells;
-    }
-
-    public function addActiveSpell(Spells $spell): static
-    {
-        if (!$this->activeSpells->contains(element: $spell)) {
-            $this->activeSpells->add($spell);
-        }
-
-        return $this;
-    }
-
-    public function removeActiveSpell(Spells $spell): static
-    {
-        $this->activeSpells->removeElement($spell);
-
-        return $this;
-    }
-
-    public function setActiveSpells(Collection $activeSpells): static
-    {
-        $this->activeSpells = $activeSpells;
-
-        return $this;
-    }
-
     public function getPosition(): ?int
     {
         return $this->position;
@@ -165,4 +132,42 @@ class ActiveCards
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, ActiveSpell>
+     */
+    public function getActiveSpells(): Collection
+    {
+        return $this->activeSpells;
+    }
+
+    public function addActiveSpell(ActiveSpell $activeSpell): static
+    {
+        if (!$this->activeSpells->contains($activeSpell)) {
+            $this->activeSpells->add($activeSpell);
+            $activeSpell->setActiveCard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActiveSpell(ActiveSpell $activeSpell): static
+    {
+        if ($this->activeSpells->removeElement($activeSpell)) {
+            // set the owning side to null (unless already changed)
+            if ($activeSpell->getActiveCard() === $this) {
+                $activeSpell->setActiveCard(null);
+            }
+        }
+
+        return $this;
+    }
+
+       public function setActiveSpells(?Collection $activeSpells): static
+    {
+        $this->activeSpells = $activeSpells;
+
+        return $this;
+    }
+
 }

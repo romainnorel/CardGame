@@ -20,9 +20,9 @@ class AppFixtures extends Fixture
     private function generateCards(ObjectManager $manager): void
     {
         $paladinCard = $this->generateCardWithData($manager, "paladin.jpg", 5, 55);
-        $bigAttack = $this->generateSpellForCardWithData($manager, $paladinCard, "bigAttack.png", "Inflige 10 dégats à l'ennemie en face");
+        $bigAttack = $this->generateSpellForCardWithData($manager, $paladinCard, "bigAttack.png", "Inflige 10 dégats à l'ennemie en face", 2);
         $this->generateSpellEffectForSpellWithData($manager, $bigAttack, "damage", 10, "ennemy", 1);
-        $solidHeal = $this->generateSpellForCardWithData($manager, $paladinCard, "solidHeal.png", "Soigne 10 pv à l'allié ciblé");
+        $solidHeal = $this->generateSpellForCardWithData($manager, $paladinCard, "solidHeal.png", "Soigne 10 pv à l'allié ciblé", 3);
         $this->generateSpellEffectForSpellWithData($manager, $solidHeal, "heal", 10, "ally", 1);
 
     }
@@ -39,12 +39,13 @@ class AppFixtures extends Fixture
         return $card;
     }
 
-    private function generateSpellForCardWithData(ObjectManager $manager, Cards $paladinCard, string $name, string $text): Spells 
+    private function generateSpellForCardWithData(ObjectManager $manager, Cards $paladinCard, string $name, string $text, int $cooldown): Spells 
     {
         $spell = new Spells();
         $spell->setName($name);
         $spell->setText($text);
         $spell->setCard($paladinCard);
+        $spell->setCooldown($cooldown);
 
         $manager->persist($spell);
 

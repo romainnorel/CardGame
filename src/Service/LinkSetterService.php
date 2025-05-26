@@ -30,14 +30,14 @@ class LinkSetterService
         $card = $activeCard->getCard();
         $card->setLink($request->getSchemeAndHttpHost() . $this->params->get('upload_dir') . 'cards/' . $card->getName());
 
-        $spells = $activeCard->getActiveSpells();
+        $activeSpells = $activeCard->getActiveSpells();
 
-        foreach ($spells as $spell) {
-            $this->setLinkForSpell($spell);
+        foreach ($activeSpells as $activeSpell) {
+            $this->setLinkForSpell($activeSpell->getSpell());
         }
 
         $activeCard->setCard($card);
-        $activeCard->setActiveSpells($spells);
+        $activeCard->setActiveSpells($activeSpells);
 
         return $activeCard;
     }

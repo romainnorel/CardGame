@@ -2,11 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\ActiveCards;
 use App\Entity\ActiveGames;
-use App\Entity\SpellEffect;
-use App\Entity\Spells;
 use App\Service\SpellEffectService;
+use App\Service\TurnService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\LinkSetterService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,13 +21,15 @@ class GameController extends AbstractController
     private SerializerInterface $serializer;
     private LinkSetterService $linkSetterService;
     private SpellEffectService $spellEffectService;
+    private TurnService $turnService;
 
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer, LinkSetterService $linkSetterService, SpellEffectService $spellEffectService)
+    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer, LinkSetterService $linkSetterService, SpellEffectService $spellEffectService, TurnService $turnService)
     {
         $this->em = $em;
         $this->serializer = $serializer;
         $this->linkSetterService = $linkSetterService;
         $this->spellEffectService = $spellEffectService;
+        $this->turnService = $turnService;
     }
 
     #[Route('/api/activeGame', methods: ['GET'])]
@@ -71,5 +71,25 @@ class GameController extends AbstractController
         $this->spellEffectService->resolveSpellEffect($activeGame, $parameters);
 
         return new JsonResponse('OK', Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/api/activeGame/end-turn', methods: ['GET'])]
+    public function endTurn(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw new UnauthorizedHttpException('JWT token is invalid or expired');
+        }
+
+        $activeGame = $this->em->getRepository(ActiveGames::class)->findByUserId( $user->getId());
+
+        if (!$activeGame) {
+            throw $this->createNotFoundException(
+                'No game found for user id '. $user->getId()
+            );
+        }
+
+        return $this->turnService->resolveEndTurn($activeGame);
     }
 }
